@@ -9,6 +9,17 @@ class BigInt {
     // Remove unnecessary leading zeros from the number string
     void removeLeadingZeros() {
         // TODO: Implement this function
+        size_t firstNonZero = number.find_first_not_of('0');
+
+        if (firstNonZero != string::npos) {
+            number = number.substr(firstNonZero);
+        } else {
+            number = "0";
+        }
+
+        if (number == "0") {
+            isNegative = false;
+        }
     }
 
     // Compare absolute values of two BigInts (ignore signs)
@@ -67,6 +78,43 @@ public:
     // Addition assignment operator (x += y)
     BigInt& operator+=(const BigInt& other) {
         // TODO: Implement this operator
+       if (isNegative == other.isNegative) {
+        string res = "";
+        int i = number.length() - 1, j = other.number.length() - 1, carry = 0;
+        
+        while (i >= 0 || j >= 0 || carry) {
+            int sum = carry;
+            if (i >= 0) sum += number[i--] - '0';
+            if (j >= 0) sum += other.number[j--] - '0';
+            carry = sum / 10;
+            res += to_string(sum % 10);
+        }
+        reverse(res.begin(), res.end());
+        number = res;
+       } else {
+        int comp = compareMagnitude(other);
+        if (comp == 0) {
+            number = "0";
+            isNegative = false;
+        } else {
+            string top = (comp > 0) ? number : other.number;
+            string bot = (comp > 0) ? other.number : number;
+            
+            string res = "";
+            int i = top.length() - 1, j = bot.length() - 1, borrow = 0;
+            
+            while (i >= 0) {
+                int diff = (top[i--] - '0') - borrow - (j >= 0 ? (bot[j--] - '0') : 0);
+                if (diff < 0) { diff += 10; borrow = 1; }
+                else borrow = 0;
+                res += to_string(diff);
+            }
+            reverse(res.begin(), res.end());
+            number = res;
+            if (comp < 0) isNegative = other.isNegative;
+        }
+    }
+    removeLeadingZeros();
         return *this;
     }
 
@@ -135,6 +183,10 @@ public:
     // Input stream operator (for reading from input)
     friend istream& operator>>(istream& is, BigInt& num) {
         // TODO: Implement this operator
+        string str;
+    if (is >> str) {
+        num = BigInt(str);
+    }
         return is;
     }
 
@@ -145,9 +197,9 @@ public:
 
 // Binary addition operator (x + y)
 BigInt operator+(BigInt lhs, const BigInt& rhs) {
-    BigInt result;
     // TODO: Implement this operator
-    return result;
+    lhs += rhs;
+return lhs;
 }
 
 // Binary subtraction operator (x - y)
@@ -181,7 +233,8 @@ BigInt operator%(BigInt lhs, const BigInt& rhs) {
 // Equality comparison operator (x == y)
 bool operator==(const BigInt& lhs, const BigInt& rhs) {
     // TODO: Implement this operator
-    return false;
+    if (lhs.isNegative != rhs.isNegative) return false;
+return lhs.number == rhs.number;
 }
 
 // Inequality comparison operator (x != y)
