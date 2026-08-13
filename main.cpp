@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 class BigInt {
@@ -42,7 +43,14 @@ public:
 
     // Constructor from string representation
     BigInt(const string& str) {
-        // TODO: Implement this constructor
+        if(str[0]=='-'){
+         isNegative=true;
+         number=str.substr(1); 
+        }else{
+            isNegative=false;
+            number=str;
+        }
+        removeLeadingZeros();
     }
 
     // Copy constructor
@@ -71,7 +79,8 @@ public:
     // Unary plus operator (+x)
     BigInt operator+() const {
         BigInt result;
-        // TODO: Implement this operator
+        result= *this;
+       
         return result;
     }
 
@@ -87,7 +96,7 @@ public:
             if (i >= 0) sum += number[i--] - '0';
             if (j >= 0) sum += other.number[j--] - '0';
             carry = sum / 10;
-            res += to_string(sum % 10);
+            res += to_string(sum % 10); 
         }
         reverse(res.begin(), res.end());
         number = res;
@@ -126,7 +135,43 @@ public:
 
     // Multiplication assignment operator (x *= y)
     BigInt& operator*=(const BigInt& other) {
-        // TODO: Implement this operator
+       
+       if(number=="0"||other.number=="0"){
+         number="0";
+         isNegative=false;
+         return *this;
+       }
+
+
+       isNegative=(isNegative^other.isNegative);
+
+        string top = number;
+        string bot = other.number;
+        
+        vector<int>res((top.length()+bot.length()),0);
+        
+       for(int i = top.length() - 1;i>=0;i--){
+         for(int j = bot.length() - 1;j>=0;j--){
+          
+                res[i+j+1]+=(top[i]-'0')*(bot[j]-'0');
+                
+        
+            }
+        }
+        for(int i=res.size()-1;i>0;i--){
+            if(res[i]>9){
+                res[i-1]+=res[i]/10;
+                res[i]%=10;
+            }
+
+        }
+       string num;
+        for(int n:res){
+            num+=to_string(n);
+        }
+        number=num;
+        removeLeadingZeros();
+
         return *this;
     }
 
@@ -211,8 +256,9 @@ BigInt operator-(BigInt lhs, const BigInt& rhs) {
 
 // Binary multiplication operator (x * y)
 BigInt operator*(BigInt lhs, const BigInt& rhs) {
-    BigInt result;
-    // TODO: Implement this operator
+    BigInt result=lhs;
+    result*=rhs;
+    
     return result;
 }
 
