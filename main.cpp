@@ -39,6 +39,18 @@ public:
     // Constructor from 64-bit integer
     BigInt(int64_t value) {
         // TODO: Implement this constructor
+        if (value < 0)
+        {
+            isNegative = true;
+            string temp = to_string(value);
+            number = temp.substr(1);
+        }
+        else
+        {
+            isNegative = false;
+			number = to_string(value);
+        }
+        removeLeadingZeros();
     }
 
     // Constructor from string representation
@@ -141,6 +153,105 @@ public:
     // Subtraction assignment operator (x -= y)
     BigInt& operator-=(const BigInt& other) {
         // TODO: Implement this operator
+        if (other.isNegative && !isNegative )
+        {
+            *this += -other;
+        }
+        else if (!other.isNegative && isNegative)
+        {
+            *this += -other;
+        }
+        else
+        {
+			string num_y = other.number;
+			string num_x = number;
+            int cmp = compareMagnitude(other);
+            if (cmp == 0)
+            {
+				number = "0";
+                isNegative = false;
+				return *this;
+			}
+            else if (cmp == 1)
+            {
+				bool sign = isNegative;
+                string result(num_x.length(), '0');
+				int index = num_y.length() - 1;
+                for(int i = num_x.length()-1 ; i >= 0 ; i--)
+                {
+                    if (index >= 0)
+                    {
+                        if( num_x[i] > num_y[index])
+                        {
+							result[i] = num_x[i] - num_y[index] + '0';
+						}
+                        else if (num_x[i] < num_y[index])
+                        {
+                            int j = i - 1;
+
+                            while (j >= 0 && num_x[j] == '0')
+                            {
+                                num_x[j] = '9';
+                                j--;
+                            }
+                            num_x[j]--;
+                            int x = (num_x[i] - '0') + 10;
+                            int y = num_y[index] - '0';
+
+                            result[i] = x - y + '0';
+                        }
+                        else
+                        {
+							result[i] = '0';
+                        }
+                    }
+                    index--;
+				}
+				number = result;
+                removeLeadingZeros();
+                isNegative = sign;
+            }
+            else 
+            {
+				bool sign = other.isNegative;
+                string result(num_y.length(), '0');
+                int index = num_x.length() - 1;
+                for (int i = num_y.length() - 1; i >= 0; i--)
+                {
+                    if (index >= 0)
+                    {
+                        if (num_y[i] > num_x[index])
+                        {
+                            result[i] = num_y[i] - num_x[index] + '0';
+                        }
+                        else if (num_y[i] < num_x[index])
+                        {
+                            int j = i - 1;
+
+                            while (j >= 0 && num_y[j] == '0')
+                            {
+                                num_y[j] = '9';
+                                j--;
+                            }
+                            num_y[j]--;
+                            int x = (num_y[i] - '0') + 10;
+                            int y = num_x[index] - '0';
+
+                            result[i] = x - y + '0';
+                        }
+                        else
+                        {
+                            result[i] = '0';
+                        }
+                    }
+                    index--;
+                }
+				number = result;
+                removeLeadingZeros();
+                isNegative = sign;
+            }
+          
+        }
         return *this;
     }
 
@@ -277,6 +388,14 @@ public:
     // Output stream operator (for printing)
     friend ostream& operator<<(ostream& os, const BigInt& num) {
         // TODO: Implement this operator
+        if (num.isNegative && num.number != "0")
+        {
+            os << "-" << num.number;
+        }
+        else
+        {
+            os << num.number;
+        }
         return os;
     }
 
@@ -304,8 +423,9 @@ return lhs;
 
 // Binary subtraction operator (x - y)
 BigInt operator-(BigInt lhs, const BigInt& rhs) {
-    BigInt result;
+    BigInt result = lhs;
     // TODO: Implement this operator
+	result -= rhs;
     return result;
 }
 
@@ -341,7 +461,7 @@ return lhs.number == rhs.number;
 // Inequality comparison operator (x != y)
 bool operator!=(const BigInt& lhs, const BigInt& rhs) {
     // TODO: Implement this operator
-    return false;
+    return !(lhs == rhs);
 }
 
 // Less-than comparison operator (x < y)
