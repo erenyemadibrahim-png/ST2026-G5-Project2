@@ -56,6 +56,8 @@ public:
     // Copy constructor
     BigInt(const BigInt& other) {
         // TODO: Implement this constructor
+		number = other.number;
+		isNegative = other.isNegative;
     }
 
     // Destructor
@@ -66,6 +68,10 @@ public:
     // Assignment operator
     BigInt& operator=(const BigInt& other) {
         // TODO: Implement this operator
+        if (this != &other) {
+            number = other.number;
+            isNegative = other.isNegative;
+		}
         return *this;
     }
 
@@ -73,6 +79,11 @@ public:
     BigInt operator-() const {
         BigInt result;
         // TODO: Implement negation logic
+		result.number = number;
+        if(number != "0")
+            result.isNegative = !isNegative;
+        else 
+			result.isNegative = false;
         return result;
     }
 
@@ -178,6 +189,50 @@ public:
     // Division assignment operator (x /= y)
     BigInt& operator/=(const BigInt& other) {
         // TODO: Implement this operator
+        if(other.number == "0") {
+			throw runtime_error("Division by zero");
+        }
+        if (number == "0") {
+            return *this;
+		}
+		bool finalSign = (isNegative != other.isNegative);
+
+        BigInt dividend = *this;
+        dividend.isNegative = false;
+
+        BigInt divisor = other;
+        divisor.isNegative = false;
+
+        if (dividend < divisor) {
+            number = "0";
+            isNegative = false;
+            return *this;
+        }
+
+        string quotient = "";
+        BigInt current;
+        current.number = "0";
+        current.isNegative = false;
+
+        for (char digit : dividend.number) {
+            if (current.number == "0") {
+                current.number = string(1, digit);
+            }
+            else {
+                current.number += digit;
+            }
+
+            int count = 0;
+            while (!(current < divisor)) {
+                current -= divisor;
+                count++;
+            }
+
+            quotient += to_string(count);
+        }
+        number = quotient;
+        isNegative = finalSign;
+        removeLeadingZeros();
         return *this;
     }
 
@@ -298,7 +353,7 @@ bool operator<(const BigInt& lhs, const BigInt& rhs) {
 // Less-than-or-equal comparison operator (x <= y)
 bool operator<=(const BigInt& lhs, const BigInt& rhs) {
     // TODO: Implement this operator
-    return false;
+    return (lhs < rhs) || (lhs == rhs);
 }
 
 // Greater-than comparison operator (x > y)
