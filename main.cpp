@@ -226,6 +226,10 @@ public:
 							result[i] = '0';
                         }
                     }
+                    else
+                    {
+						result[i] = num_x[i];
+                    }
                     index--;
 				}
 				number = result;
@@ -265,6 +269,10 @@ public:
                             result[i] = '0';
                         }
                     }
+                    else
+                    {
+                        result[i] = num_y[i];
+					}
                     index--;
                 }
 				number = result;
@@ -376,16 +384,13 @@ public:
             throw runtime_error("Division by zero");
         }
 
-        bool sign = isNegative;
+        BigInt quotient = *this;
+        quotient /= other;
 
-        BigInt remainder = *this - (*this / other) * other;
+        BigInt product = quotient;
+        product *= other;
 
-        *this = remainder;
-
-        if (this->number != "0")
-            this->isNegative = sign;
-        else
-            this->isNegative = false;
+        *this -= product;
 
         return *this;
     }
