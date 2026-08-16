@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <stdexcept>
+
 using namespace std;
 
 class BigInt {
@@ -27,6 +30,22 @@ class BigInt {
     // Returns: 1 if |this| > |other|, 0 if equal, -1 if |this| < |other|
     int compareMagnitude(const BigInt& other) const {
         // TODO: Implement this function
+		if (number.length() > other.number.length()) 
+            return 1;
+		else if (number.length() < other.number.length()) 
+            return -1;
+        else
+        {
+            for( int i = 0; i < number.length(); ++i) 
+            {
+                if (number[i] > other.number[i]) 
+                    return 1;
+                else if (number[i] < other.number[i]) 
+                    return -1;
+			}
+
+            
+        }
         return 0;
     }
 
@@ -352,31 +371,50 @@ public:
     // Modulus assignment operator (x %= y)
     BigInt& operator%=(const BigInt& other) {
         // TODO: Implement this operator
+        if (other.number == "0")
+        {
+            throw runtime_error("Division by zero");
+        }
+
+        bool sign = isNegative;
+
+        BigInt remainder = *this - (*this / other) * other;
+
+        *this = remainder;
+
+        if (this->number != "0")
+            this->isNegative = sign;
+        else
+            this->isNegative = false;
+
         return *this;
     }
 
     // Pre-increment operator (++x)
     BigInt& operator++() {
         // TODO: Implement this operator
+		*this += BigInt(1);
         return *this;
     }
 
     // Post-increment operator (x++)
     BigInt operator++(int) {
-        BigInt temp;
+        BigInt temp = *this;
         // TODO: Implement this operator
+		++(*this);
         return temp;
     }
 
     // Pre-decrement operator (--x)
     BigInt& operator--() {
         // TODO: Implement this operator
+		*this -= BigInt(1);
         return *this;
     }
 
     // Post-decrement operator (x--)
     BigInt operator--(int) {
-        BigInt temp = *this;;
+        BigInt temp = *this;
         // TODO: Implement this operator
         --(*this);
         return temp;
@@ -385,7 +423,14 @@ public:
     // Convert BigInt to string representation
     string toString() const {
         // TODO: Implement this function
-        return "";
+        if (isNegative && number != "0")
+        {
+            return "-" + number;
+        }
+        else
+        {
+            return number;
+		}
     }
 
     // Output stream operator (for printing)
@@ -442,15 +487,17 @@ BigInt operator*(BigInt lhs, const BigInt& rhs) {
 
 // Binary division operator (x / y)
 BigInt operator/(BigInt lhs, const BigInt& rhs) {
-    BigInt result;
+    BigInt result=lhs;
     // TODO: Implement this operator
+	result /= rhs;
     return result;
 }
 
 // Binary modulus operator (x % y)
 BigInt operator%(BigInt lhs, const BigInt& rhs) {
-    BigInt result;
+    BigInt result = lhs;
     // TODO: Implement this operator
+	result %= rhs;
     return result;
 }
 
@@ -491,7 +538,7 @@ bool operator<=(const BigInt& lhs, const BigInt& rhs) {
 // Greater-than comparison operator (x > y)
 bool operator>(const BigInt& lhs, const BigInt& rhs) {
     // TODO: Implement this operator
-    return false;
+    return !(lhs <= rhs);
 }
 
 // Greater-than-or-equal comparison operator (x >= y)
@@ -506,7 +553,7 @@ int main() {
     cout << "Your task is to implement ALL the functions above." << endl;
     cout << "The tests below will work once you implement them correctly." << endl << endl;
 
-    /*
+    
     // Test 1: Constructors and basic output
     cout << "1. Constructors and output:" << endl;
     BigInt a(12345);              // Should create BigInt from integer
@@ -562,7 +609,7 @@ int main() {
     cout << "Negative multiplication: " << BigInt(-5) * BigInt(3) << endl;  // Should be "-15"
     cout << "Negative division: " << BigInt(-10) / BigInt(3) << endl;       // Should be "-3"
     cout << "Negative modulus: " << BigInt(-10) % BigInt(3) << endl;        // Should be "-1"
-    */
+    
 
     return 0;
 }
