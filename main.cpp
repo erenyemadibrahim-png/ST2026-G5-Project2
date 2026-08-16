@@ -34,6 +34,8 @@ public:
     // Default constructor - initialize to zero
     BigInt() {
         // TODO: Implement this constructor
+        number = "0";
+        isNegative = false;
     }
 
     // Constructor from 64-bit integer
@@ -374,8 +376,9 @@ public:
 
     // Post-decrement operator (x--)
     BigInt operator--(int) {
-        BigInt temp;
+        BigInt temp = *this;;
         // TODO: Implement this operator
+        --(*this);
         return temp;
     }
 
@@ -467,7 +470,16 @@ bool operator!=(const BigInt& lhs, const BigInt& rhs) {
 // Less-than comparison operator (x < y)
 bool operator<(const BigInt& lhs, const BigInt& rhs) {
     // TODO: Implement this operator
-    return false;
+    if (lhs.isNegative && !rhs.isNegative)
+        return true;
+
+    if (!lhs.isNegative && rhs.isNegative)
+        return false;
+
+    if (!lhs.isNegative && !rhs.isNegative)
+        return lhs.compareMagnitude(rhs) < 0;
+
+    return lhs.compareMagnitude(rhs) > 0;
 }
 
 // Less-than-or-equal comparison operator (x <= y)
@@ -485,7 +497,7 @@ bool operator>(const BigInt& lhs, const BigInt& rhs) {
 // Greater-than-or-equal comparison operator (x >= y)
 bool operator>=(const BigInt& lhs, const BigInt& rhs) {
     // TODO: Implement this operator
-    return false;
+    return !(lhs < rhs);
 }
 
 int main() {
